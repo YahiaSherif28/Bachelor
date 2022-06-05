@@ -1,0 +1,46 @@
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Queue;
+
+public class Trim {
+    public static boolean nodeIsBad(BipartiteGraph g, int u) {
+        return (u < g.sizeV1 && g.outdeg(u) == 0) ||
+                (u >= g.sizeV1 && g.outdeg(u) == 0);
+    }
+
+    public static void trim(BipartiteGraph g) {
+        Queue<Integer> bad = new LinkedList<>();
+        for (int i = 0; i < g.sizeV1 + g.sizeV2; i++) {
+            if (!g.removed[i] && nodeIsBad(g, i)) {
+                bad.add(i);
+                g.removed[i] = true;
+            }
+        }
+        while (!bad.isEmpty()) {
+            int u = bad.poll();
+            for (int v : g.adj[u]) { // u -> v
+                g.adjRev[v].remove(u);
+                if (!g.removed[v] && nodeIsBad(g, v)) {
+                    bad.add(v);
+                    g.removed[v] = true;
+                }
+            }
+            for (int v : g.adjRev[u]) { // v -> u
+                g.adj[v].remove(u);
+                if (!g.removed[v] && nodeIsBad(g, v)) {
+                    bad.add(v);
+                    g.removed[v] = true;
+                }
+            }
+            g.adj[u].clear();
+            g.adjRev[u].clear();
+        }
+    }
+
+    public static void reverseTrim(BipartiteGraph g) {
+        g.reverseGraph();
+        trim(g);
+        g.reverseGraph();
+    }
+
+}
