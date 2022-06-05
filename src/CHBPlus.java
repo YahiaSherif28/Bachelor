@@ -56,6 +56,16 @@ public class CHBPlus {
                     for (int x : g.adjRev[ns]) {
                         g.addEdge(x, v);
                     }
+                    ArrayList<Integer> inNs = new ArrayList<>();
+                    for (int x : g.adj[v]) {
+                        if (g.adjRev[ns].contains(x)) {
+                            inNs.add(x);
+                        }
+                    }
+                    for (int x : inNs) {
+                        g.adj[v].remove(x);
+                        g.adjRev[x].remove(v);
+                    }
                 }
             }
             for (int np : g.adjRev[n]) {
