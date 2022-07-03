@@ -4,8 +4,7 @@ import java.util.Queue;
 
 public class Trim {
     public static boolean nodeIsBad(BipartiteGraph g, int u) {
-        return (u < g.sizeV1 && g.outdeg(u) == 0) ||
-                (u >= g.sizeV1 && g.outdeg(u) == 0);
+        return g.outdeg(u) == 0;
     }
 
     public static void trim(BipartiteGraph g) {
@@ -18,13 +17,6 @@ public class Trim {
         }
         while (!bad.isEmpty()) {
             int u = bad.poll();
-            for (int v : g.adj[u]) { // u -> v
-                g.adjRev[v].remove(u);
-                if (!g.removed[v] && nodeIsBad(g, v)) {
-                    bad.add(v);
-                    g.removed[v] = true;
-                }
-            }
             for (int v : g.adjRev[u]) { // v -> u
                 g.adj[v].remove(u);
                 if (!g.removed[v] && nodeIsBad(g, v)) {

@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 import java.util.HashSet;
 
-public class CHBPlus {
+public class CHBPlusWithFourApprox {
     public static HashSet<Integer> CHBPlus(BipartiteGraph g) {
         HashSet<Integer> max = new HashSet<>();
         for (int i = 0; i < g.sizeV1; i++) {
@@ -11,9 +11,7 @@ public class CHBPlus {
         }
         Trim.trim(g);
         Trim.reverseTrim(g);
-        ArrayList<ArrayList<Integer>> chordlessCycles = ChordlessCycles.chordlessCycles(g);
-        System.out.println(chordlessCycles);
-        HashSet<Integer> result = HittingSet.hittingSet(chordlessCycles);
+        HashSet<Integer> result = FourAlgorithm.findFVS(new Graph(g));
         return red(g, result, max);
     }
 
@@ -26,9 +24,7 @@ public class CHBPlus {
         if (v1IsEmpty) {
             return b;
         }
-        System.out.println(g);
-        System.out.println(h);
-        System.out.println(b);
+        Trim.reverseTrim(g);
         for (int n = 0; n < g.sizeV1; n++) {
             if (h.contains(n) || g.removed[n])
                 continue;
@@ -39,7 +35,7 @@ public class CHBPlus {
                 }
             }
             if (ns == -1) {
-                throw new RuntimeException();
+                continue;
             }
             ArrayList<Integer> toBeRemoved = new ArrayList<>();
             for (int v : g.adj[n]) {
@@ -87,8 +83,7 @@ public class CHBPlus {
         }
         Trim.trim(g);
         Trim.reverseTrim(g);
-        ArrayList<ArrayList<Integer>> ch = ChordlessCycles.chordlessCycles(g);
-        h = HittingSet.hittingSet(ch);
+        h = FourAlgorithm.findFVS(new Graph(g));
         return red(g, h, b);
     }
 

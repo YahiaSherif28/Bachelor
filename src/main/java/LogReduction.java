@@ -88,7 +88,6 @@ public class LogReduction {
         while (true) {
             reduce(g);
             ArrayList<Integer> shortestCycle = findShortestCycle(g);
-            System.out.println(shortestCycle);
             if (shortestCycle == null)
                 break;
             for (int x : shortestCycle) {

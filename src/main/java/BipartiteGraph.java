@@ -11,6 +11,13 @@ public class BipartiteGraph {
         adjRev[v].add(u);
     }
 
+    public BipartiteGraph(int sizeV1, int sizeV2, boolean[] removed, HashSet<Integer>[] adj, HashSet<Integer>[] adjRev) {
+        this.sizeV1 = sizeV1;
+        this.sizeV2 = sizeV2;
+        this.removed = removed;
+        this.adj = adj;
+        this.adjRev = adjRev;
+    }
 
     public BipartiteGraph(int sizeV1, int sizeV2, double edgeDensity) {
         this(sizeV1, sizeV2);
@@ -79,5 +86,35 @@ public class BipartiteGraph {
                 "\n, adj=" + Arrays.toString(adj) +
                 "\n, adjRev=" + Arrays.toString(adjRev) +
                 '}';
+    }
+
+    public BipartiteGraph copy() {
+        HashSet<Integer>[] adjclone = new HashSet[adj.length];
+        for (int i = 0; i < adjclone.length; i++) {
+            adjclone[i] = new HashSet<>(adj[i]);
+        }
+        HashSet<Integer>[] adjRevclone = new HashSet[adjRev.length];
+        for (int i = 0; i < adjRevclone.length; i++) {
+            adjRevclone[i] = new HashSet<>(adjRev[i]);
+        }
+        return new BipartiteGraph(sizeV1, sizeV2, removed.clone(), adjclone, adjRevclone);
+    }
+
+    public static void main(String[] args) {
+        BipartiteGraph g = new BipartiteGraph(4, 4);
+        g.addEdge(0,6);
+        g.addEdge(1,7);
+        g.addEdge(2,6);
+        g.addEdge(2,7);
+        g.addEdge(3,4);
+        g.addEdge(4,0);
+        g.addEdge(4,2);
+        g.addEdge(6,1);
+        g.addEdge(6,3);
+        g.addEdge(7,0);
+        g.removed[5] = true;
+        System.out.println(ChordlessCycles.chordlessCycles(g.copy()));
+        System.out.println(new Graph(g.copy()));
+        System.out.println(CHBWithFourAprox.CHB(g.copy()));
     }
 }
