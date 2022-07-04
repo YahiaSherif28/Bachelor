@@ -24,10 +24,11 @@ public class CHBPlusWithFourApprox {
         if (v1IsEmpty) {
             return b;
         }
-        Trim.reverseTrim(g);
+//        System.out.println(g);
         for (int n = 0; n < g.sizeV1; n++) {
-            if (h.contains(n) || g.removed[n])
+            if (h.contains(n) || g.removed[n]) {
                 continue;
+            }
             int ns = -1;
             for (int x : g.adjRev[n]) {
                 if (ns == -1 || g.indeg(x) < g.indeg(ns)) {
@@ -35,7 +36,7 @@ public class CHBPlusWithFourApprox {
                 }
             }
             if (ns == -1) {
-                continue;
+                throw new RuntimeException();
             }
             ArrayList<Integer> toBeRemoved = new ArrayList<>();
             for (int v : g.adj[n]) {

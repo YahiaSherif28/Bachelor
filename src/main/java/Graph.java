@@ -11,13 +11,13 @@ public class Graph { // undirected
     public HashMultiset<Integer>[] adj;
 
     public void addEdge(int u, int v) {
+        if(adj[u].count(v) >= 2)
+            return;
         adj[u].add(v);
         adj[v].add(u);
     }
 
     public void removeEdge(int u, int v) {
-//        if (adj[u].count(v) == 2)
-//            return;
         adj[u].remove(v);
         adj[v].remove(u);
     }
