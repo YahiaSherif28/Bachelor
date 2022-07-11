@@ -33,7 +33,7 @@ public class BipartiteGraph {
             }
         }
         for (int i = sizeV1; i < sizeV1 + sizeV2; i++) {
-            if (indeg(i) == 0) {
+            if (indeg(i) == 0 || outdeg(i) == 0) {
                 removeNode(i);
             }
         }

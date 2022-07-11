@@ -2,6 +2,16 @@ import java.util.ArrayList;
 import java.util.HashSet;
 
 public class CHBPlusWithFourApprox {
+    static int pop(HashSet<Integer> hs) {
+        int res = -1;
+        for (int x : hs) {
+            res = x;
+            break;
+        }
+        hs.remove(res);
+        return res;
+    }
+
     public static HashSet<Integer> CHBPlus(BipartiteGraph g) {
         HashSet<Integer> max = new HashSet<>();
         for (int i = 0; i < g.sizeV1; i++) {
@@ -24,7 +34,6 @@ public class CHBPlusWithFourApprox {
         if (v1IsEmpty) {
             return b;
         }
-//        System.out.println(g);
         for (int n = 0; n < g.sizeV1; n++) {
             if (h.contains(n) || g.removed[n]) {
                 continue;
@@ -36,7 +45,7 @@ public class CHBPlusWithFourApprox {
                 }
             }
             if (ns == -1) {
-                throw new RuntimeException();
+               continue;
             }
             ArrayList<Integer> toBeRemoved = new ArrayList<>();
             for (int v : g.adj[n]) {
@@ -85,6 +94,8 @@ public class CHBPlusWithFourApprox {
         Trim.trim(g);
         Trim.reverseTrim(g);
         h = FourAlgorithm.findFVS(new Graph(g));
+//        System.out.println(h);
+//        System.out.println(g);
         return red(g, h, b);
     }
 

@@ -1,12 +1,9 @@
-import java.util.*;
 
-import com.google.common.collect.HashMultiset;
+import java.util.*;
 
 public class FourAlgorithm {
     static HashSet<Integer> vis;
     static LinkedList<Integer> path = new LinkedList<>();
-//    static int[] edgesInH;
-//    static HashSet<Integer>[] withEdgesInH;
 
     static int pop(HashSet<Integer> hs) {
         int res = -1;
@@ -26,7 +23,7 @@ public class FourAlgorithm {
         path.addLast(u);
         int myX = -1;
         for (int x : g.adj[u]) {
-            if (vis.contains(x) && (p != x || g.adj[u].count(x) > 1)) {
+            if (vis.contains(x) && p != x) {
                 if (myX == -1 || depth[myX] < depth[x]) {
                     myX = x;
                 }
@@ -38,7 +35,7 @@ public class FourAlgorithm {
             return true;
         }
         for (int x : g.adj[u]) {
-            if (myX == -1 && !vis.contains(x)) {
+            if (!vis.contains(x)) {
                 depth[x] = 1 + depth[u];
                 if (findCycle(g, x, u, root))
                     return true;
@@ -49,20 +46,59 @@ public class FourAlgorithm {
         return false;
     }
 
+    static HashSet<Integer> pathHS;
+
     public static boolean findPathToAdd(Graph g, Graph h, int u, int p, int root) {
         vis.add(u);
         path.addLast(u);
+        pathHS.add(u);
+        int cntBack = 0;
         for (int x : g.adj[u]) {
-            if (!(u == root && !h.removed[x]))
-                if ((x != p || g.adj[u].count(x) > 1) && (vis.contains(x) || !h.removed[x]) && x != root) {
-                    path.add(x);
-                    return true;
-                }
-            if (!vis.contains(x)) {
-                if (findPathToAdd(g, h, x, u, root))
-                    return true;
+            if (u != root && g.adj[root].contains(x))
+                continue;
+            if (x != p && (pathHS.contains(x) || !h.removed[x])) {
+                cntBack++;
             }
         }
+        if (cntBack > 2) {
+            pathHS.remove(u);
+            path.removeLast();
+            return false;
+        }
+        if (cntBack == 0) {
+            for (int x : g.adj[u]) {
+                if (u != root && g.adj[root].contains(x))
+                    continue;
+                if (!vis.contains(x)) {
+                    if (findPathToAdd(g, h, x, u, root)) {
+                        g.removeEdge(x, u);
+                        h.addEdge(x, u);
+                        h.removed[u] = false;
+                        pathHS.remove(u);
+                        return true;
+                    }
+                }
+            }
+        } else {
+
+            ArrayList<Integer> backEdges = new ArrayList<>();
+            for (int x : g.adj[u]) {
+                if (u != root && g.adj[root].contains(x))
+                    continue;
+                if (x != p && (pathHS.contains(x) || !h.removed[x])) {
+                    backEdges.add(x);
+                }
+            }
+            for (int x : backEdges) {
+                g.removeEdge(x, u);
+                h.addEdge(x, u);
+                path.add(x);
+            }
+            h.removed[u] = false;
+            pathHS.remove(u);
+            return true;
+        }
+        pathHS.remove(u);
         path.removeLast();
         return false;
     }
@@ -81,21 +117,11 @@ public class FourAlgorithm {
         }
     }
 
-//    public static void increaseEdgesInH(int u) {
-//        withEdgesInH[Math.min(edgesInH[u], withEdgesInH.length - 1)].remove(u);
-//        edgesInH[u]++;
-//        withEdgesInH[Math.min(edgesInH[u], withEdgesInH.length - 1)].add(u);
-//    }
-
     public static Graph SubGraph23(Graph g) {
 
         depth = new int[g.size];
         Graph h = new Graph(g.size);
-//        edgesInH = new int[g.size];
-//        withEdgesInH = new HashSet[5];
-//        for (int i = 0; i < withEdgesInH.length; i++) {
-//            withEdgesInH[i] = new HashSet<>();
-//        }
+
         vis = new HashSet<>();
         Arrays.fill(h.removed, true);
         Queue<Integer> leaves = new LinkedList<>();
@@ -104,86 +130,46 @@ public class FourAlgorithm {
                 leaves.add(i);
             }
         }
-        for (int i = 0; i < g.size; i++) {
+        for (int i = 0; i < g.size; ) {
             removeLeaves(g, leaves);
-            if (g.removed[i])
+            if (g.removed[i]) {
+                i++;
                 continue;
+            }
             ArrayList<Integer> addedToH = new ArrayList<>();
             Queue<Integer> r = new LinkedList<>();
             path = new LinkedList<>();
             vis = new HashSet<>();
             findCycle(g, i, -1, i);
 //            System.out.println(path + " Cycle");
-            if (path.isEmpty())
+//            System.out.println(g);
+            if (path.isEmpty()) {
+                i++;
                 continue;
-//            for (int x : path) {
-//                for (int y : g.adj[x]) {
-//                    increaseEdgesInH(y);
-//                }
-//            }
-//            for (int x : withEdgesInH[4]) {
-//                g.removeNode(x);
-//            }
+            }
             for (int j = 0; j < path.size(); j++) {
-                if (j != 0) {
-                    addedToH.add(path.get(j));
-                }
+                addedToH.add(path.get(j));
                 r.add(path.get(j));
                 h.removed[path.get(j)] = false;
                 h.addEdge(path.get(j), path.get((j + 1) % path.size()));
                 g.removeEdge(path.get(j), path.get((j + 1) % path.size()));
             }
+            ArrayList<Integer> cc = new ArrayList<>(path);
             while (!r.isEmpty()) {
-
+                int u = r.poll();
+                if (h.adj[u].size() != 2) {
+                    continue;
+                }
                 Queue<Integer> deg3 = new LinkedList<>();
                 path = new LinkedList<>();
                 vis = new HashSet<>();
-//                if (!withEdgesInH[2].isEmpty()) {
-//                    int cur = pop(withEdgesInH[2]);
-//                    if (g.removed[cur] || !h.removed[cur])
-//                        continue;
-//                    for (int x : g.adj[cur]) {
-//                        if (!h.removed[x] && h.adj[x].size() == 2) {
-//                            path.add(x);
-//                        }
-//                    }
-//                    if (path.size() != 2 || path.get(0).equals(path.get(1))) {
-//                        continue;
-//                    }
-//                    path.add(1, cur);
-//                } else if (!withEdgesInH[3].isEmpty()) {
-//                    int cur = pop(withEdgesInH[3]);
-//                    if (g.removed[cur] || !h.removed[cur])
-//                        continue;
-//                    for (int x : g.adj[cur]) {
-//                        if (!h.removed[x] && h.adj[x].size() == 2 && path.size() < 2 && (path.isEmpty() || x != path.get(0))) {
-//                            path.add(x);
-//                        }
-//                    }
-//                    if (path.size() != 2) {
-//                        continue;
-//                    }
-//                    path.add(1, cur);
-//                } else {
-                    int u = r.poll();
-                    if (h.adj[u].size() != 2)
-                        continue;
-                    findPathToAdd(g, h, u, -1, u);
-//                }
-//                System.out.println(path + " Path");
-//                for (int j = 1; j < path.size() - 1; j++) {
-//                    for (int y : g.adj[path.get(j)]) {
-//                        increaseEdgesInH(y);
-//                    }
-//                }
-                for (int j = 0; j < path.size() - 1; j++) {
-                    h.removed[path.get(j)] = false;
-                    h.addEdge(path.get(j), path.get(j + 1));
-                    if (h.adj[path.get(j)].size() == 3) {
-                        deg3.add(path.get(j));
-                    }
-                    if (h.adj[path.get(j + 1)].size() == 3) {
-                        deg3.add(path.get(j + 1));
+                pathHS = new HashSet<>();
+                findPathToAdd(g, h, u, -1, u);
+                for (int x : path) {
+                    if (h.adj[x].size() == 3) {
+                        deg3.add(x);
+                    } else if (h.adj[x].size() == 2) {
+                        r.add(x);
                     }
                 }
 
@@ -203,7 +189,6 @@ public class FourAlgorithm {
                     }
                     g.removeNode(x);
                 }
-                removeLeaves(g, leaves);
             }
             for (int x : addedToH) {
                 for (int y : g.adj[x]) {
@@ -213,7 +198,6 @@ public class FourAlgorithm {
                 }
                 g.removeNode(x);
             }
-            removeLeaves(g, leaves);
         }
         return h;
     }
@@ -283,27 +267,47 @@ public class FourAlgorithm {
     }
 
     public static HashSet<Integer> findFVS(Graph g) {
+        int numberOfNodes = 0;
+        for (int i = 0; i < g.size; i++) {
+            if (!g.removed[i]) {
+                numberOfNodes++;
+            }
+        }
         HashSet<Integer> f = new HashSet<>();
-        while (true) {
-            int best = -1;
-            int bestCnt = 0;
-            for (int i = 0; i < g.size; i++) {
-                int cnt = 0;
-                for (int x : g.adj[i]) {
-                    if (g.adj[i].count(x) == 2) {
-                        cnt++;
-                    }
-                }
-                if (cnt > bestCnt) {
-                    bestCnt = cnt;
-                    best = i;
+
+        for (int i = 0; i < g.size; i++) {
+            int other = -1;
+            int myDeg = 0;
+            for (int x : g.adj[i]) {
+                if (g.adj[i].count(x) == 2) {
+                    other = x;
+                    myDeg++;
                 }
             }
-            if (best == -1)
-                break;
-            f.add(best);
-            g.removeNode(best);
+            if (other != -1) {
+                int otherDeg = 0;
+                for (int x : g.adj[other]) {
+                    if (g.adj[other].count(x) == 2) {
+                        otherDeg++;
+                    }
+                }
+                if (myDeg > 1) {
+                    f.add(i);
+                    g.removeNode(i);
+                }
+                if (otherDeg > 1) {
+                    f.add(other);
+                    g.removeNode(other);
+                }
+                if (otherDeg == 1 && myDeg == 1) {
+                    f.add(i);
+                    g.removeNode(i);
+                    f.add(other);
+                    g.removeNode(other);
+                }
+            }
         }
+
         Graph h = SubGraph23(g.copy());
         boolean[] isCriticalPoint = findCriticalPoints(g, h);
         for (int i = 0; i < h.size; i++) {
@@ -312,6 +316,10 @@ public class FourAlgorithm {
             }
         }
         f.addAll(findIsolatedCycles(h, isCriticalPoint));
+
+        if (f.size() == numberOfNodes) {
+            pop(f);
+        }
         return f;
     }
 

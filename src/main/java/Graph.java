@@ -11,7 +11,7 @@ public class Graph { // undirected
     public HashMultiset<Integer>[] adj;
 
     public void addEdge(int u, int v) {
-        if(adj[u].count(v) >= 2)
+        if (adj[u].count(v) >= 2)
             return;
         adj[u].add(v);
         adj[v].add(u);
@@ -54,6 +54,11 @@ public class Graph { // undirected
                         addEdge(u, v);
                     }
                 }
+            }
+        }
+        for (int i = 0; i < g.sizeV1; i++) {
+            if (g.removed[i]) {
+                removed[i] = true;
             }
         }
     }
