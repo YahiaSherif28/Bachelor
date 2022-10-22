@@ -25,6 +25,7 @@ public class CHBPlus {
         if (v1IsEmpty) {
             return b;
         }
+        System.out.println(g);
         for (int n = 0; n < g.sizeV1; n++) {
             if (h.contains(n) || g.removed[n])
                 continue;
@@ -89,23 +90,19 @@ public class CHBPlus {
     }
 
     public static void main(String[] args) {
-        BipartiteGraph g = new BipartiteGraph(5, 5);
-        g.addEdge(0, 5);
-        g.addEdge(0, 7);
-        g.addEdge(0, 9);
-        g.addEdge(1, 5);
-        g.addEdge(1, 8);
-        g.addEdge(1, 6);
-        g.addEdge(2, 7);
-        g.addEdge(2, 8);
-        g.addEdge(3, 6);
-        g.addEdge(4, 7);
-        g.addEdge(4, 9);
-        g.addEdge(5, 2);
-        g.addEdge(6, 4);
-        g.addEdge(7, 1);
-        g.addEdge(8, 4);
-        g.addEdge(9, 3);
+        BipartiteGraph g = new BipartiteGraph(3, 6);
+        g.addEdge(0,3);
+        g.addEdge(0,7);
+        g.addEdge(8,0);
+        g.addEdge(4,0);
+        g.addEdge(1,5);
+        g.addEdge(1,4);
+        g.addEdge(3,1);
+        g.addEdge(6,1);
+        g.addEdge(2,8);
+        g.addEdge(2,6);
+        g.addEdge(7,2);
+        g.addEdge(5,2);
         HashSet<Integer> x = CHBPlus(g.copy());
         System.out.println(x);
         System.out.println(Checker.checker(x, g));
